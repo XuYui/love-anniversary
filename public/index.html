@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>我们的恋爱纪元</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;800&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-scene="hub">
+    <div id="scroll-progress"></div>
+    <div id="cursor-glow"></div>
+
+    <div class="experience-stage">
+        <canvas id="mesh-canvas"></canvas>
+        <div class="grain-layer"></div>
+        <div class="scanline-layer"></div>
+    </div>
+
+    <div class="ambient-bg">
+        <span class="orb orb-a"></span>
+        <span class="orb orb-b"></span>
+        <span class="orb orb-c"></span>
+    </div>
+    <div id="sakura-container"></div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="switchTab('hub', this)">🌸 首页</div>
+        <div class="nav-item" onclick="switchTab('map', this)">🗺️ 足迹</div>
+        <div class="nav-item" onclick="switchTab('list', this)">📝 清单</div>
+        <div class="nav-item" onclick="switchTab('hole', this)">📮 树洞</div>
+        <div class="nav-item" onclick="switchTab('daily', this)">📅 打卡</div>
+        <div class="nav-item" onclick="switchTab('wish', this)">🪄 许愿池</div>
+    </nav>
+
+    <section id="hub" class="page active">
+        <div class="hero reveal">
+            <h1 class="title">相爱时光</h1>
+            <p class="hero-subtitle">从 2023.05.02 12:28 开始，这里记录我们的每一天。</p>
+            <div id="timer" class="timer-box">加载中...</div>
+            <div class="love-tree">🌳</div>
+        </div>
+
+        <div class="overview-grid reveal">
+            <div class="overview-card">
+                <span>相爱天数</span>
+                <strong id="overview-days">0</strong>
+            </div>
+            <div class="overview-card">
+                <span>城市足迹</span>
+                <strong id="overview-cities">0</strong>
+            </div>
+            <div class="overview-card">
+                <span>清单完成</span>
+                <strong id="overview-bucket">0%</strong>
+            </div>
+            <div class="overview-card">
+                <span>树洞信件</span>
+                <strong id="overview-letters">0</strong>
+            </div>
+        </div>
+
+        <div class="card-container">
+            <div class="card banner-card reveal" onclick="openAnniversaryOpening()">
+                <h3>✨ 开启三年之旅 (回忆放映室) ✨</h3>
+                <p class="banner-subtitle">点击进入我们的专属放映厅</p>
+            </div>
+
+            <div class="card music-hub-card reveal">
+                <div class="music-hub-head">
+                    <h3>背景音乐</h3>
+                    <span>来自 music 歌单</span>
+                </div>
+                <p id="site-music-current" class="music-hub-current">当前：未选择</p>
+                <div class="music-hub-actions">
+                    <button class="btn ghost-btn" onclick="openSiteMusicSheet()">选择背景音乐</button>
+                    <button id="site-music-toggle-btn" class="btn primary-btn" onclick="toggleSiteMusic()">播放</button>
+                </div>
+            </div>
+
+            <div class="card quote-card reveal">
+                <p>"我从南京的晨光里，写下一行想念。
+它追着落日，抵达洛杉矶的深夜。
+如今，它携着太平洋的风与异乡的月色，
+穿越回你的掌心。
+你看，爱能跨越时区，终将重逢"</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="map" class="page map-page film-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Footprint Atlas</p>
+            <h2 class="page-title">我们的世界版图</h2>
+            <p class="page-subtitle">点击地图空白可添加新足迹，点击图钉可查看相册与编辑记录。</p>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">足迹地图</h3>
+            </div>
+            <div id="interactive-map"></div>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">最近足迹</h3>
+            </div>
+            <div id="footprint-list" class="footprint-list"></div>
+        </div>
+
+        <div class="fab" onclick="showAddFootprint()">+</div>
+        
+        <div id="bottom-sheet" class="bottom-sheet">
+            <div class="sheet-handle"></div>
+            <h3 id="sheet-title" class="sheet-title">城市名</h3>
+            <p id="sheet-date" class="sheet-date"></p>
+            <div id="sheet-photos" class="album-grid"></div>
+            <p id="sheet-desc" class="sheet-desc">回忆内容...</p>
+            <div class="sheet-actions">
+                <button id="edit-footprint-btn" class="btn ghost-btn">编辑</button>
+                <button id="delete-footprint-btn" class="btn danger-btn">删除</button>
+            </div>
+            <button onclick="closeSheet('bottom-sheet')" class="btn primary-btn u-w-full u-mt-12">合上相册</button>
+        </div>
+
+        <div id="add-modal" class="bottom-sheet">
+            <div class="sheet-handle"></div>
+            <h3 id="add-modal-title" class="sheet-title-center">添加新足迹</h3>
+            <p class="sheet-helper-text">请先在地图上点选位置，再上传照片与回忆。</p>
+            <input type="hidden" id="editing-footprint-id">
+            <input type="text" id="new-city" placeholder="去过的城市 (如：大理)" class="input-field">
+            <input type="hidden" id="new-lat">
+            <input type="hidden" id="new-lng">
+            <textarea id="new-memory" placeholder="在那里的美好回忆..." class="input-field form-h-80"></textarea>
+            <label class="date-label form-label-tight" for="new-photos">上传照片（可多选）</label>
+            <input type="file" id="new-photos" class="input-field" accept="image/*" multiple>
+            <small id="new-photos-preview" class="form-hint-text">未选择新图片，编辑时将保留原照片。</small>
+            <button onclick="submitFootprint()" id="save-btn" class="btn primary-btn u-w-full u-mb-10">保存记忆</button>
+            <button onclick="closeSheet('add-modal')" class="btn btn-muted u-w-full">取消</button>
+        </div>
+        <div id="sheet-overlay" class="overlay" onclick="closeAllSheets()"></div>
+    </section>
+
+    <section id="list" class="page film-page list-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Bucket Story</p>
+            <h2 class="page-title">100件小事</h2>
+            <p class="page-subtitle">写下你们想一起完成的事，支持随时编辑、完成和删除。</p>
+            <div class="film-progress">
+                <div class="film-progress-head">
+                    <span>完成进度</span>
+                    <strong id="list-progress-text">0/0</strong>
+                </div>
+                <div class="film-progress-track">
+                    <div id="list-progress-fill" class="film-progress-fill"></div>
+                </div>
+                <p id="list-progress-note" class="film-progress-note">先写下第一件想一起做的小事。</p>
+            </div>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">添加新章节</h3>
+            </div>
+            <input id="bucket-title" type="text" class="input-field" placeholder="新增清单，如：一起看极光">
+            <textarea id="bucket-note" class="input-field form-h-72" placeholder="补充说明（可选）"></textarea>
+            <button id="bucket-add-btn" class="btn primary-btn u-w-full">添加到清单</button>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">清单放映</h3>
+            </div>
+            <div class="tabs film-tabs">
+                <button class="tab-btn active" onclick="switchBucketTab('todo', this)">未完成的梦</button>
+                <button class="tab-btn" onclick="switchBucketTab('done', this)">已兑现的甜</button>
+            </div>
+            <div id="bucket-content" class="list-container"></div>
+        </div>
+    </section>
+
+    <section id="hole" class="page film-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Time Mailbox</p>
+            <h2 class="page-title">时光邮局</h2>
+            <p class="page-subtitle">把想说的话寄给未来，到了约定日期再打开。</p>
+        </div>
+
+        <div class="form-card card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">投递信件</h3>
+            </div>
+            <textarea id="hole-msg" placeholder="写下你想对未来/现在的Ta说的话..." class="input-field form-h-120"></textarea>
+            
+            <div class="date-wrapper">
+                <label for="hole-date" class="date-label">🗓️ 设置信件解封日期 (不选则立即公开)</label>
+                <input type="date" id="hole-date" class="input-field date-input">
+            </div>
+
+            <button onclick="submitTreeHole()" class="btn primary-btn u-w-full u-mt-5">投递信件</button>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">邮局来信</h3>
+            </div>
+            <div id="letters-container" class="letters-grid"></div>
+        </div>
+    </section>
+
+    <section id="daily" class="page film-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Daily Check-in</p>
+            <h2 class="page-title">每日打卡</h2>
+            <p class="page-subtitle">按日期记录日常心情、琐事和彼此的小瞬间。</p>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">记录今天</h3>
+            </div>
+            <div class="daily-toolbar">
+                <label class="date-label" for="daily-date">打卡日期</label>
+                <input type="date" id="daily-date" class="input-field">
+            </div>
+            <textarea id="daily-content" class="input-field form-h-100" placeholder="今天想记录什么？"></textarea>
+            <button id="daily-add-btn" class="btn primary-btn u-w-full">保存打卡</button>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">当日记录</h3>
+            </div>
+            <div id="daily-list" class="list-container"></div>
+        </div>
+    </section>
+
+    <section id="wish" class="page film-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Wish Pool</p>
+            <h2 class="page-title">许愿池</h2>
+            <p class="page-subtitle">写下想实现的愿望，支持编辑、完成和删除。</p>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">投下一枚愿望</h3>
+            </div>
+            <input id="wish-title" type="text" class="input-field" placeholder="愿望标题，如：一起去看极光">
+            <textarea id="wish-content" class="input-field form-h-84" placeholder="愿望细节（可选）"></textarea>
+            <button id="wish-add-btn" class="btn primary-btn u-w-full">投入许愿池</button>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">愿望列表</h3>
+            </div>
+            <div id="wish-list" class="list-container"></div>
+        </div>
+    </section>
+
+    <section id="anniversary" class="page anniversary-page film-page">
+        <div class="card film-hero reveal">
+            <p class="film-kicker">Frame 01 · Anniversary Film</p>
+            <h2 class="page-title">三周年纪念主片</h2>
+            <p class="page-subtitle">可播放背景音乐，也可随时编辑每一页图文回顾。</p>
+        </div>
+
+        <div class="anniversary-stage card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 02</p>
+                <h3 class="section-title">主片放映</h3>
+            </div>
+            <div id="anniversary-flip" class="anniversary-flip">
+                <div class="anniversary-slide" id="anniversary-slide"></div>
+            </div>
+            <div class="anniversary-nav">
+                <button class="btn ghost-btn" onclick="changeAnniversarySlide(-1)">上一页</button>
+                <span id="anniversary-page-indicator">0 / 0</span>
+                <button class="btn primary-btn" onclick="changeAnniversarySlide(1)">下一页</button>
+            </div>
+        </div>
+
+        <div class="card anniversary-toolbar frame-card">
+            <button class="btn ghost-btn" onclick="switchTab('hub', document.querySelector('.nav-item'))">返回首页</button>
+            <button id="music-toggle-btn" class="btn primary-btn" onclick="toggleAnniversaryMusic()">播放音乐</button>
+            <button id="music-mute-btn" class="btn ghost-btn" onclick="toggleAnniversaryMute()">静音</button>
+        </div>
+
+        <div class="card music-config-card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 03</p>
+                <h3 class="section-title">背景音乐设置</h3>
+            </div>
+            <input id="music-url" class="input-field" placeholder="粘贴音乐 URL（mp3/wav 等）">
+            <div class="music-config-row">
+                <button class="btn primary-btn" onclick="saveMusicSettings()">保存音乐地址</button>
+                <label class="volume-control">音量
+                    <input id="music-volume" type="range" min="0" max="1" step="0.01" value="0.6" onchange="setAnniversaryVolume(this.value)">
+                </label>
+            </div>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 04</p>
+                <h3 class="section-title">编辑回顾页面</h3>
+            </div>
+            <input type="hidden" id="ann-slide-id">
+            <input id="ann-slide-title" class="input-field" placeholder="标题，如：第一站，重庆">
+            <textarea id="ann-slide-content" class="input-field form-h-90" placeholder="这一页的回顾文字"></textarea>
+            <input id="ann-slide-image" class="input-field" placeholder="图片 URL（可选）">
+            <input id="ann-slide-order" type="number" class="input-field" placeholder="排序序号（数字越小越靠前）" value="0">
+            <div class="ann-edit-actions">
+                <button id="ann-save-btn" class="btn primary-btn" onclick="saveAnniversarySlide()">保存页面</button>
+                <button class="btn ghost-btn" onclick="resetAnniversaryForm()">清空</button>
+            </div>
+
+            <div class="media-panel">
+                <h4>图片素材库（来自 pictures 文件夹）</h4>
+                <p>点击任意缩略图会自动填入上方“图片 URL”。</p>
+                <div id="picture-picker" class="picture-picker"></div>
+            </div>
+        </div>
+
+        <div class="card frame-card">
+            <div class="frame-head">
+                <p class="frame-kicker">Frame 05</p>
+                <h3 class="section-title">页面列表</h3>
+            </div>
+            <div id="anniversary-list" class="anniversary-list"></div>
+        </div>
+    </section>
+
+    <div id="site-music-overlay" class="overlay" onclick="closeSiteMusicSheet()"></div>
+    <div id="site-music-sheet" class="bottom-sheet music-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">选择背景音乐</h3>
+        <p class="sheet-date">新增音乐后刷新页面即可出现在歌单中</p>
+        <div id="site-music-list" class="site-music-list"></div>
+        <button class="btn ghost-btn u-w-full u-mt-12" onclick="closeSiteMusicSheet()">收起歌单</button>
+    </div>
+
+    <div id="photo-lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <button class="lightbox-close" onclick="closeLightbox(event)">✕</button>
+        <button class="lightbox-nav prev" onclick="navigateLightbox(-1, event)">‹</button>
+        <div class="lightbox-content">
+            <img id="lightbox-image" alt="回忆照片大图">
+            <p id="lightbox-caption"></p>
+        </div>
+        <button class="lightbox-nav next" onclick="navigateLightbox(1, event)">›</button>
+    </div>
+
+    <div id="anniversary-opening" class="opening-overlay">
+        <div class="opening-noise"></div>
+        <div class="opening-content">
+            <p class="opening-year">2023 → 2026</p>
+            <h2>开启三年之旅</h2>
+            <p>这是一段会一直更新的纪念片。愿我们每次回看，都还能再次心动。</p>
+            <div class="opening-actions">
+                <button class="btn primary-btn" onclick="startOpeningSequence()">进入回顾</button>
+                <button class="btn ghost-btn" onclick="closeAnniversaryOpening()">稍后再看</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="anniversary-audio" preload="metadata" loop></audio>
+    <audio id="site-audio" preload="metadata" loop></audio>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+</html>
