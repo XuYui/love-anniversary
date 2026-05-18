@@ -1,66 +1,102 @@
-# Love Anniversary
+# 恋爱纪念册 Love Anniversary
 
-A responsive full-stack anniversary memory app for recording relationship milestones, footprints, bucket-list goals, time-locked letters, daily check-ins, wishes, and anniversary slides.
+一个响应式全栈恋爱纪念应用，用来记录相爱天数、城市足迹、100 件小事、时光邮局、每日打卡、许愿池和三周年回顾放映。
 
-This repository is prepared as a portfolio-friendly codebase. Personal runtime data, uploaded photos, and music are intentionally excluded from Git.
+该仓库已按简历展示场景整理：代码、文档、CI 和部署说明会上传到 GitHub；真实数据库、照片、音乐、备份文件和环境变量不会提交。
 
-## Highlights
+## 一键下载
 
-- Express + SQLite backend with REST APIs.
-- Vanilla JavaScript frontend with responsive mobile-first interactions.
-- Footprint map, photo albums, bucket list, time mailbox, daily check-ins, wish pool, and anniversary slideshow.
-- Configurable runtime data paths so deployments can update code without overwriting the existing database or media files.
-- GitHub Actions syntax check for every push and pull request.
+下载最新源码压缩包：
 
-## Tech Stack
+[love-anniversary-source.zip](https://github.com/XuYui/love-anniversary/releases/latest/download/love-anniversary-source.zip)
+
+也可以访问 [Releases 页面](https://github.com/XuYui/love-anniversary/releases) 查看历史版本。
+
+## 项目亮点
+
+- Express + SQLite 后端，提供清晰的 REST API。
+- 原生 HTML/CSS/JavaScript 前端，无重型前端框架依赖。
+- 支持足迹地图、相册、愿望清单、时光邮局、每日打卡、许愿池和纪念日放映。
+- 支持图片上传与本地媒体素材库读取。
+- 数据目录可配置，服务器更新代码时不会覆盖已有数据库、照片或音乐。
+- 配置 GitHub Actions，每次推送都会执行语法检查。
+
+## 技术栈
 
 - Node.js 22+
 - Express 5
 - SQLite
-- Multer for image uploads
-- Leaflet for map rendering
-- HTML, CSS, and vanilla JavaScript
+- Multer
+- Leaflet
+- HTML / CSS / Vanilla JavaScript
 
-## Quick Start
+## 快速启动
 
 ```bash
 npm ci
 npm start
 ```
 
-Open `http://localhost:3000`.
+启动后打开：
 
-Run syntax checks:
+```text
+http://localhost:3000
+```
+
+运行检查：
 
 ```bash
 npm run check
 ```
 
-Create a local backup before deployment:
+部署或升级前备份数据：
 
 ```bash
 npm run backup:data
 ```
 
-## Runtime Data
+## 数据与隐私
 
-The app uses these paths by default:
+默认本地路径：
 
-- database: `memory.db`
-- music: `music/`
-- pictures: `pictures/`
+- 数据库：`memory.db`
+- 音乐：`music/`
+- 图片：`pictures/`
 
-For production, keep data outside the Git checkout:
+生产环境建议把数据放到仓库目录之外，例如：
 
 ```bash
 PORT=3000
 DATA_DIR=/srv/love-anniversary/shared
 ```
 
-With `DATA_DIR` set, the app stores data under:
+设置 `DATA_DIR` 后，运行数据会存放在：
 
 - `/srv/love-anniversary/shared/memory.db`
 - `/srv/love-anniversary/shared/music`
 - `/srv/love-anniversary/shared/pictures`
 
-See [DEVELOPERS.md](./DEVELOPERS.md) for development and deployment rules.
+这样后续执行 `git pull` 或重新部署代码时，不会删除或覆盖旧数据。
+
+## 仓库内容说明
+
+会提交到 GitHub：
+
+- `public/` 前端代码
+- `server.js` 后端服务
+- `package.json` / `package-lock.json`
+- `.env.example`
+- `.github/workflows/ci.yml`
+- `README.md`
+- `DEVELOPERS.md`
+
+不会提交到 GitHub：
+
+- `memory.db`
+- `.env`
+- `node_modules/`
+- `backups/`
+- 真实照片文件
+- 真实音乐文件
+
+更多开发规范、上传 GitHub 要求和服务器部署流程见 [DEVELOPERS.md](./DEVELOPERS.md)。
