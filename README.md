@@ -75,26 +75,3 @@ DATA_DIR=/srv/love-anniversary/shared
 - `/srv/love-anniversary/shared/pictures`
 
 这样后续执行 `git pull` 或重新部署代码时，不会删除或覆盖旧数据。
-
-## 仓库内容说明
-
-会提交到 GitHub：
-
-- `public/` 前端代码
-- `server.js` 后端服务
-- `package.json` / `package-lock.json`
-- `.env.example`
-- `.github/workflows/ci.yml`
-- `README.md`
-- `DEVELOPERS.md`
-
-不会提交到 GitHub：
-
-- `memory.db`
-- `.env`
-- `node_modules/`
-- `backups/`
-- 真实照片文件
-- 真实音乐文件
-
-更多开发规范、上传 GitHub 要求和服务器部署流程见 [DEVELOPERS.md](./DEVELOPERS.md)。
